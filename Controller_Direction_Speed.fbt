@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE FBType SYSTEM "http://www.holobloc.com/xml/LibraryElement.dtd">
+<FBType Comment="Tamplate for a simple Basic Function Block Type" Name="Controller_Direction_Speed">
+  <Identification Standard="61499-2"/>
+  <VersionInfo Author="4DIAC-IDE" Date="2018-07-24" Organization="4DIAC-Consortium" Version="0.0"/>
+  <VersionInfo Author="AZ" Date="2016-05-26" Organization="fortiss GmbH" Version="1.0"/>
+  <InterfaceList>
+    <EventInputs>
+      <Event Comment="Initialization Request" Name="INIT" Type="Event">
+        <With Var="QI"/>
+        <With Var="distance"/>
+      </Event>
+      <Event Name="PATH" Type="Event">
+        <With Var="QI"/>
+        <With Var="pathMSG"/>
+      </Event>
+      <Event Name="POSITION" Type="Event">
+        <With Var="my_position_x_y"/>
+        <With Var="target_positon_y"/>
+        <With Var="my_positionLable"/>
+      </Event>
+      <Event Name="ARBITRATION" Type="Event">
+        <With Var="ArbitrationCMD"/>
+      </Event>
+    </EventInputs>
+    <EventOutputs>
+      <Event Comment="Initialization Confirm" Name="INITO" Type="Event">
+        <With Var="QO"/>
+      </Event>
+      <Event Comment="Execution Confirmation" Name="CNF" Type="Event">
+        <With Var="QO"/>
+        <With Var="commandOutput"/>
+      </Event>
+      <Event Name="VEHICLESTATE" Type="Event">
+        <With Var="state"/>
+      </Event>
+    </EventOutputs>
+    <InputVars>
+      <VarDeclaration Comment="Input event qualifier" Name="QI" Type="BOOL"/>
+      <VarDeclaration Comment="like 1--&gt;3-...." Name="pathMSG" Type="STRING"/>
+      <VarDeclaration Comment="34_67" Name="my_position_x_y" Type="STRING"/>
+      <VarDeclaration Comment="54_98" Name="target_positon_y" Type="STRING"/>
+      <VarDeclaration Comment="e.g.,Piont 3" Name="my_positionLable" Type="STRING"/>
+      <VarDeclaration Name="ArbitrationCMD" Type="STRING"/>
+      <VarDeclaration Name="distance" Type="INT"/>
+    </InputVars>
+    <OutputVars>
+      <VarDeclaration Comment="Output event qualifier" Name="QO" Type="BOOL"/>
+      <VarDeclaration Name="state" Type="BOOL"/>
+      <VarDeclaration Name="commandOutput" Type="STRING"/>
+    </OutputVars>
+  </InterfaceList>
+  <BasicFB>
+    <InternalVars>
+      <VarDeclaration Comment="Internal Variable" InitialValue="0" Name="ArbitrateCommand" Type="BOOL"/>
+      <VarDeclaration Comment="Internal Variable" InitialValue="" Name="Direction" Type="STRING"/>
+    </InternalVars>
+    <ECC>
+      <ECState Comment="Initial State" Name="START" x="475.0" y="1125.0"/>
+      <ECState Comment="Initialization" Name="Init" x="1235.0" y="665.0">
+        <ECAction Algorithm="initialize" Output="INITO"/>
+      </ECState>
+      <ECState Name="Initialized" x="1805.0" y="1140.0"/>
+      <ECState Name="DeInit" x="1140.0" y="1520.0">
+        <ECAction Algorithm="deInitialize" Output="INITO"/>
+      </ECState>
+      <ECState Name="PathParse" x="2470.0" y="285.0">
+        <ECAction Algorithm="PathMSGParse"/>
+      </ECState>
+      <ECState Name="ArbitrateControl" x="3280.0" y="905.0">
+        <ECAction Algorithm="Arbitrate" Output="CNF"/>
+      </ECState>
+      <ECState Name="PositionRealTimeControl" x="2660.0" y="1710.0">
+        <ECAction Algorithm="realTimeControl" Output="CNF"/>
+      </ECState>
+      <ECTransition Comment="" Condition="INIT[TRUE = QI]" Destination="Init" Source="START" x="840.0" y="920.0"/>
+      <ECTransition Comment="" Condition="1" Destination="Initialized" Source="Init" x="1660.0" y="975.0"/>
+      <ECTransition Comment="" Condition="1" Destination="START" Source="DeInit" x="940.0" y="1445.0"/>
+      <ECTransition Comment="" Condition="INIT[FALSE = QI]" Destination="DeInit" Source="Initialized" x="1690.0" y="1340.0"/>
+      <ECTransition Comment="" Condition="PATH" Destination="PathParse" Source="Initialized" x="2145.0" y="515.0"/>
+      <ECTransition Comment="" Condition="1" Destination="Initialized" Source="PathParse" x="2565.0" y="1000.0"/>
+      <ECTransition Comment="" Condition="ARBITRATION" Destination="ArbitrateControl" Source="Initialized" x="2745.0" y="675.0"/>
+      <ECTransition Comment="" Condition="1" Destination="Initialized" Source="ArbitrateControl" x="2755.0" y="1240.0"/>
+      <ECTransition Comment="" Condition="POSITION" Destination="PositionRealTimeControl" Source="Initialized" x="2640.0" y="1420.0"/>
+      <ECTransition Comment="" Condition="1" Destination="Initialized" Source="PositionRealTimeControl" x="2340.0" y="1890.0"/>
+    </ECC>
+    <Algorithm Comment="Initialization algorithm" Name="initialize">
+      <ST Text="&#10;QO := QI;"/>
+    </Algorithm>
+    <Algorithm Comment="Normally executed algorithm" Name="deInitialize">
+      <ST Text="&#10;QO := FALSE;"/>
+    </Algorithm>
+    <Algorithm Comment="new algorithm" Name="PathMSGParse">
+      <ST Text=""/>
+    </Algorithm>
+    <Algorithm Comment="new algorithm" Name="Arbitrate">
+      <ST Text=""/>
+    </Algorithm>
+    <Algorithm Comment="new algorithm" Name="realTimeControl">
+      <ST Text=""/>
+    </Algorithm>
+  </BasicFB>
+</FBType>

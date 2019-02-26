@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE FBType SYSTEM "http://www.holobloc.com/xml/LibraryElement.dtd">
+<FBType Comment="Tamplate for a simple Basic Function Block Type" Name="TaskManager">
+  <Identification Standard="61499-2"/>
+  <VersionInfo Author="4DIAC-IDE" Date="2018-07-05" Organization="4DIAC-Consortium" Version="0.0"/>
+  <VersionInfo Author="AZ" Date="2016-05-26" Organization="fortiss GmbH" Version="1.0"/>
+  <InterfaceList>
+    <EventInputs>
+      <Event Comment="Initialization Request" Name="INIT" Type="Event">
+        <With Var="QI"/>
+      </Event>
+      <Event Name="CurrentPosition" Type="Event">
+        <With Var="Position"/>
+      </Event>
+      <Event Comment="Normal Execution Request" Name="TaskRecv" Type="Event">
+        <With Var="QI"/>
+        <With Var="TaskMSG"/>
+        <With Var="Position"/>
+      </Event>
+      <Event Name="TaskDone" Type="Event"/>
+    </EventInputs>
+    <EventOutputs>
+      <Event Comment="Initialization Confirm" Name="INITO" Type="Event">
+        <With Var="QO"/>
+      </Event>
+      <Event Comment="Execution Confirmation" Name="CNF" Type="Event">
+        <With Var="QO"/>
+        <With Var="Path"/>
+      </Event>
+      <Event Name="TaskFinish" Type="Event">
+        <With Var="Finish"/>
+      </Event>
+    </EventOutputs>
+    <InputVars>
+      <VarDeclaration Comment="Input event qualifier" Name="QI" Type="BOOL"/>
+      <VarDeclaration Name="Position" Type="STRING"/>
+      <VarDeclaration Comment="like 1_10" Name="TaskMSG" Type="STRING"/>
+    </InputVars>
+    <OutputVars>
+      <VarDeclaration Comment="Output event qualifier" Name="QO" Type="BOOL"/>
+      <VarDeclaration Comment="like 1_10" Name="Path" Type="STRING"/>
+      <VarDeclaration Name="Finish" Type="STRING"/>
+    </OutputVars>
+  </InterfaceList>
+  <BasicFB>
+    <InternalVars>
+      <VarDeclaration Comment="Internal Variable" InitialValue="0" Name="TaskCount" Type="INT"/>
+      <VarDeclaration Comment="Internal Variable" InitialValue="" Name="Path1" Type="STRING"/>
+      <VarDeclaration Comment="Internal Variable" InitialValue="" Name="Paht2" Type="STRING"/>
+    </InternalVars>
+    <ECC>
+      <ECState Comment="Initial State" Name="START" x="475.0" y="1125.0"/>
+      <ECState Comment="Initialization" Name="Init" x="1235.0" y="665.0">
+        <ECAction Algorithm="initialize" Output="INITO"/>
+      </ECState>
+      <ECState Comment="Normal execution" Name="TaskRearrangement" x="2850.0" y="665.0">
+        <ECAction Algorithm="PathRebuild" Output="CNF"/>
+      </ECState>
+      <ECState Name="Initialized" x="1900.0" y="1140.0"/>
+      <ECState Name="DeInit" x="1140.0" y="1520.0">
+        <ECAction Algorithm="deInitialize" Output="INITO"/>
+      </ECState>
+      <ECState Name="TaskPhaseOne" x="3025.0" y="1630.0">
+        <ECAction Algorithm="Path2MSG" Output="CNF"/>
+      </ECState>
+      <ECState Name="TaskFinish" x="2650.0" y="2000.0">
+        <ECAction Algorithm="TaskReallyDone" Output="TaskFinish"/>
+      </ECState>
+      <ECState Name="PositionState" x="2815.0" y="225.0">
+        <ECAction Algorithm="positionUpdate"/>
+      </ECState>
+      <ECTransition Comment="" Condition="INIT[TRUE = QI]" Destination="Init" Source="START" x="840.0" y="920.0"/>
+      <ECTransition Comment="" Condition="1" Destination="Initialized" Source="Init" x="1660.0" y="975.0"/>
+      <ECTransition Comment="" Condition="TaskRecv" Destination="TaskRearrangement" Source="Initialized" x="2275.0" y="600.0"/>
+      <ECTransition Comment="" Condition="1" Destination="Initialized" Source="TaskRearrangement" x="2855.0" y="1065.0"/>
+      <ECTransition Comment="" Condition="1" Destination="START" Source="DeInit" x="940.0" y="1445.0"/>
+      <ECTransition Comment="" Condition="INIT[FALSE = QI]" Destination="DeInit" Source="Initialized" x="1690.0" y="1340.0"/>
+      <ECTransition Comment="The first phase, AGV from initial position to task Begin position " Condition="TaskDone[TaskCount  =0]" Destination="TaskPhaseOne" Source="Initialized" x="2880.0" y="1085.0"/>
+      <ECTransition Comment="" Condition="1" Destination="Initialized" Source="TaskPhaseOne" x="2585.0" y="1815.0"/>
+      <ECTransition Comment="" Condition="TaskDone[TaskCount = 1]" Destination="TaskFinish" Source="Initialized" x="2435.0" y="1615.0"/>
+      <ECTransition Comment="" Condition="1" Destination="Initialized" Source="TaskFinish" x="2095.0" y="2125.0"/>
+      <ECTransition Comment="" Condition="CurrentPosition" Destination="PositionState" Source="Initialized" x="1965.0" y="245.0"/>
+      <ECTransition Comment="" Condition="1" Destination="Initialized" Source="PositionState" x="2540.0" y="715.0"/>
+    </ECC>
+    <Algorithm Comment="Initialization algorithm" Name="initialize">
+      <ST Text="&#10;QO := QI;"/>
+    </Algorithm>
+    <Algorithm Comment="Normally executed algorithm" Name="deInitialize">
+      <ST Text="&#10;QO := FALSE;"/>
+    </Algorithm>
+    <Algorithm Comment="new algorithm" Name="PathRebuild">
+      <ST Text=""/>
+    </Algorithm>
+    <Algorithm Comment="new algorithm" Name="Path2MSG">
+      <ST Text=""/>
+    </Algorithm>
+    <Algorithm Comment="new algorithm" Name="TaskReallyDone">
+      <ST Text=""/>
+    </Algorithm>
+    <Algorithm Comment="new algorithm" Name="positionUpdate">
+      <ST Text=""/>
+    </Algorithm>
+  </BasicFB>
+</FBType>

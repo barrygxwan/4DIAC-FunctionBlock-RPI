@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE FBType SYSTEM "http://www.holobloc.com/xml/LibraryElement.dtd">
+<FBType Comment="Tamplate for a simple Basic Function Block Type" Name="MapAndPath">
+  <Identification Standard="61499-2"/>
+  <VersionInfo Author="4DIAC-IDE" Date="2018-06-04" Organization="4DIAC-Consortium" Version="0.0"/>
+  <VersionInfo Author="AZ" Date="2016-05-26" Organization="fortiss GmbH" Version="1.0"/>
+  <InterfaceList>
+    <EventInputs>
+      <Event Comment="Initialization Request" Name="INIT" Type="Event">
+        <With Var="QI"/>
+      </Event>
+      <Event Comment="Normal Execution Request" Name="CreateMap" Type="Event">
+        <With Var="LengthAndWeight"/>
+      </Event>
+      <Event Name="PathPlan" Type="Event">
+        <With Var="AlgorithmSelection"/>
+        <With Var="BeginEndPosition"/>
+      </Event>
+    </EventInputs>
+    <EventOutputs>
+      <Event Comment="Initialization Confirm" Name="INITO" Type="Event">
+        <With Var="QO"/>
+      </Event>
+      <Event Comment="Execution Confirmation" Name="map_CNF" Type="Event">
+        <With Var="State"/>
+      </Event>
+      <Event Name="Path_CNF" Type="Event">
+        <With Var="result"/>
+      </Event>
+    </EventOutputs>
+    <InputVars>
+      <VarDeclaration Comment="Input event qualifier" Name="QI" Type="BOOL"/>
+      <VarDeclaration Comment="msg frame：Length_Weight" Name="LengthAndWeight" Type="STRING"/>
+      <VarDeclaration Comment="1-Dijkstra, 2-others reservation" Name="AlgorithmSelection" Type="INT"/>
+      <VarDeclaration Comment="like 1_10" Name="BeginEndPosition" Type="STRING"/>
+    </InputVars>
+    <OutputVars>
+      <VarDeclaration Comment="Output event qualifier" Name="QO" Type="BOOL"/>
+      <VarDeclaration Comment="Creat map success or failed" Name="State" Type="STRING"/>
+      <VarDeclaration Comment="like 1--&gt;3-...." Name="result" Type="STRING"/>
+    </OutputVars>
+  </InterfaceList>
+  <BasicFB>
+    <InternalVars>
+      <VarDeclaration Comment="Internal Variable" InitialValue="" Name="maxNum" Type="INT"/>
+    </InternalVars>
+    <ECC>
+      <ECState Comment="Initial State" Name="START" x="475.0" y="1125.0"/>
+      <ECState Comment="Initialization" Name="Init" x="1235.0" y="665.0">
+        <ECAction Algorithm="initialize" Output="INITO"/>
+      </ECState>
+      <ECState Comment="Normal execution" Name="MapCreation" x="2565.0" y="475.0">
+        <ECAction Algorithm="creatMap" Output="map_CNF"/>
+      </ECState>
+      <ECState Name="Initialized" x="1900.0" y="1140.0"/>
+      <ECState Name="DeInit" x="1140.0" y="1520.0">
+        <ECAction Algorithm="deInitialize" Output="INITO"/>
+      </ECState>
+      <ECState Name="PathPlan" x="3175.0" y="1385.0">
+        <ECAction Algorithm="PathPlan" Output="Path_CNF"/>
+      </ECState>
+      <ECTransition Comment="" Condition="INIT[TRUE = QI]" Destination="Init" Source="START" x="840.0" y="920.0"/>
+      <ECTransition Comment="" Condition="1" Destination="Initialized" Source="Init" x="1660.0" y="975.0"/>
+      <ECTransition Comment="" Condition="CreateMap" Destination="MapCreation" Source="Initialized" x="2340.0" y="605.0"/>
+      <ECTransition Comment="" Condition="1" Destination="Initialized" Source="MapCreation" x="2930.0" y="1400.0"/>
+      <ECTransition Comment="" Condition="1" Destination="START" Source="DeInit" x="940.0" y="1445.0"/>
+      <ECTransition Comment="" Condition="INIT[FALSE = QI]" Destination="DeInit" Source="Initialized" x="1690.0" y="1340.0"/>
+      <ECTransition Comment="" Condition="PathPlan" Destination="PathPlan" Source="Initialized" x="3285.0" y="950.0"/>
+      <ECTransition Comment="" Condition="1" Destination="Initialized" Source="PathPlan" x="2440.0" y="1660.0"/>
+    </ECC>
+    <Algorithm Comment="Initialization algorithm" Name="initialize">
+      <ST Text="&#10;QO := QI;"/>
+    </Algorithm>
+    <Algorithm Comment="Normally executed algorithm" Name="deInitialize">
+      <ST Text="&#10;QO := FALSE;"/>
+    </Algorithm>
+    <Algorithm Comment="new algorithm" Name="creatMap">
+      <ST Text="LengthAndWeight:=&quot;hfrhkd&quot;;&#13;&#10;State:=&quot;OK&quot;;"/>
+    </Algorithm>
+    <Algorithm Comment="new algorithm" Name="PathPlan">
+      <ST Text="AlgorithmSelection:=1;&#13;&#10;BeginEndPosition:=&quot;1_10&quot;;&#13;&#10;result:=&quot;1-2-3&quot;;&#13;&#10;maxNum:=100;"/>
+    </Algorithm>
+  </BasicFB>
+</FBType>
